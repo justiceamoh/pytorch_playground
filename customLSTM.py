@@ -9,7 +9,7 @@ import torch.utils.data as data_utils
 from torch.autograd import Variable
 
 
-class mLSTM(nn.Module):
+class myLSTM(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(mLSTM, self).__init__()
 
