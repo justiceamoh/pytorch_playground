@@ -260,6 +260,12 @@ for t in range(50):
     optimizer.step()
 
 
-
+# # Alternative Declaration
+# layers = []
+# layers.append(nn.GRU(fbins,L1,1))
+# layers.append(nn.GRU(L1,L2,1))
+# layers.append(nn.GRU(L2,L3,1))
+# layers.append(nn.Linear(L3,nclass))
+# model = nn.Sequential(*layers)
 
 
