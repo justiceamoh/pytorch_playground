@@ -242,7 +242,7 @@ model = torch.nn.Sequential(
 )
 loss_fn = torch.nn.MSELoss(size_average=False)
 
-#using the optim package
+# Using the optim package
 learning_rate = 1e-4
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -267,5 +267,3 @@ for t in range(50):
 # layers.append(nn.GRU(L2,L3,1))
 # layers.append(nn.Linear(L3,nclass))
 # model = nn.Sequential(*layers)
-
-
