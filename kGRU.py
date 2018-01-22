@@ -30,5 +30,3 @@ class kGRUCell(nn.Module):
         h = (1 - z)*state + z*g
 
         return h
-
-
