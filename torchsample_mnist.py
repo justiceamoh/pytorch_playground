@@ -78,7 +78,7 @@ model.fit(x_train, y_train,
           val_data=(x_test, y_test),
           num_epoch=10, 
           batch_size=128,
-          verbose=0)
+          verbose=1)
 
 
 loss   = model.evaluate(x_test,y_test)

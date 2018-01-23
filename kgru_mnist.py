@@ -1,17 +1,19 @@
+import os
+import sys
+import numpy as np
+
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
+
 from torch.autograd import Variable
+from torchvision import datasets
 
 from torchsample.modules import ModuleTrainer
-from torchsample.callbacks import EarlyStopping, ReduceLROnPlateau
-from torchsample.regularizers import L1Regularizer, L2Regularizer
-from torchsample.constraints import UnitNorm
+from torchsample.callbacks import EarlyStopping, CSVLogger, ModelCheckpoint
 from torchsample.initializers import XavierUniform
 from torchsample.metrics import CategoricalAccuracy
 
-import os
-from torchvision import datasets
 ROOT = '/Users/d30676n/pytorch/mnist'
 dataset = datasets.MNIST(ROOT, train=True, download=True)
 x_train, y_train = th.load(os.path.join(dataset.root, 'processed/training.pt'))
@@ -69,6 +71,8 @@ class Network(nn.Module):
         super(Network, self).__init__() 
         self.gru1 = kGRUCell(fbins,L1)
         self.gru2 = kGRUCell(L1,L2)
+        # self.gru1 = nn.GRUCell(fbins,L1)
+        # self.gru2 = nn.GRUCell(L1,L2)
         self.fc3  = nn.Linear(L2,L3)
         self.fc4  = nn.Linear(L3,nclass)
               
@@ -84,14 +88,34 @@ class Network(nn.Module):
         return F.log_softmax(out)
 
 
-net     = Network()
-model   = ModuleTrainer(net)
-metrics = [CategoricalAccuracy(top_k=3)]
 
+# Train Net
+net      = Network()
+model    = ModuleTrainer(net)
+metrics  = [CategoricalAccuracy(top_k=3)]
+
+## Training Outputs & Callbacks
+# Output Files
+prefix   = sys.argv[0][:-3]
+logname  = prefix + '-log.csv'
+netname  = prefix + '-net.pth'
+figname  = prefix + '-fig.png'
+
+# Callbacks
+elstopper = EarlyStopping(monitor='loss',min_delta=0,patience=10) # using val_loss broken
+chckpoint = ModelCheckpoint('.',netname,monitor='loss',save_best_only=True,verbose=1)
+csvlogger = CSVLogger(logname)
+callbacks = [csvlogger]
+# callbacks = [elstopper,chckpoint,csvlogger]
+
+# Initializer
+initializers = [XavierUniform(bias=False, module_filter='*gru*')]
 
 model.compile(loss='nll_loss',
                 optimizer='adadelta',
-                metrics=metrics)
+                initializers=initializers,
+                metrics=metrics,
+                callbacks=callbacks)
 
 model.fit(x_train,y_train,
           val_data=(x_test,y_test),
@@ -99,5 +123,6 @@ model.fit(x_train,y_train,
           batch_size=128,
           verbose=1)
 
-model.evaluate(x_test,y_test)
-
+result = model.evaluate(x_test,y_test)
+# y_pred = model.predict(y_test)
+print result
