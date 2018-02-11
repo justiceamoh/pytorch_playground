@@ -14,6 +14,8 @@ from torchsample.callbacks import EarlyStopping, CSVLogger, ModelCheckpoint
 from torchsample.initializers import XavierUniform
 from torchsample.metrics import CategoricalAccuracy
 
+th.manual_seed(7)
+
 ROOT = '/Users/d30676n/pytorch/mnist'
 dataset = datasets.MNIST(ROOT, train=True, download=True)
 x_train, y_train = th.load(os.path.join(dataset.root, 'processed/training.pt'))
